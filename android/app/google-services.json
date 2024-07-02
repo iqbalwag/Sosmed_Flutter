@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "804753258623",
+    "project_id": "sosmedproject-e95b1",
+    "storage_bucket": "sosmedproject-e95b1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:804753258623:android:737fc07bba6d48cb00274a",
+        "android_client_info": {
+          "package_name": "com.example.front_sosmed"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYBFeW38jfbast1hgPK0_DhJlnieNKlRQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,6 +4,9 @@ import 'package:flutter/widgets.dart';
 import 'package:front_sosmed/widgets/auth_button.dart';
 import 'package:front_sosmed/widgets/auth_text_field.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -18,6 +21,15 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordTextController = TextEditingController();
   final repasswordTextController = TextEditingController();
 
+  displayMessage(String message){
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(message),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,22 +43,40 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 const Icon(Icons.lock,size: 100,),
                 const Gap(40),
-                Text('Welcome, to POPO Land',style: TextStyle(color: Colors.grey[700])),
+                Text('Selamat datang, di POPO Land',style: TextStyle(color: Colors.grey[700])),
                 const Gap(30),
                 AuthTextField(controller: emailTextController, hintText: 'Email', obscureText: false),
                 const Gap(10),
                 AuthTextField(controller: passwordTextController, hintText: 'Password', obscureText: true),
                 const Gap(10),
-                AuthTextField(controller: repasswordTextController, hintText: 'Confirm Password', obscureText: true),
+                AuthTextField(controller: repasswordTextController, hintText: 'Tulis ulang Password', obscureText: true),
                 const Gap(10),
-                AuthButton(onTap: widget.onTap, text: 'Sign Up'),
+                AuthButton(onTap: () async {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                  if(passwordTextController.text == repasswordTextController.text){
+                    ApalahProvider authProvider = Provider.of<ApalahProvider>(context, listen: false);
+                    await authProvider.signUp(emailTextController.text, passwordTextController.text);
+                    if (context.mounted) Navigator.pop(context);
+                  } 
+                  else if (passwordTextController.text != repasswordTextController.text){
+                    Navigator.pop(context);
+                    displayMessage("Password tidak sama!");
+                    return;
+                  }
+                },
+                  text: 'Sign Up'),
                 const Gap(10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Already have account ?',style: TextStyle(color: Colors.grey[700]),),
+                    Text('Sudah mempunyai akun ?',style: TextStyle(color: Colors.grey[700]),),
                     const Gap(7),
-                    GestureDetector(onTap: widget.onTap,child: const Text('Login Now',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),)),
+                    GestureDetector(onTap: widget.onTap,child: const Text('Masuk Sekarang!',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),)),
                   ],
                 )
               ],

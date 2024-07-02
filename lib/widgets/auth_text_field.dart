@@ -10,6 +10,8 @@ class AuthTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
+      obscureText: obscureText,
       decoration: InputDecoration(
         enabledBorder: const OutlineInputBorder(
           borderSide: BorderSide(
