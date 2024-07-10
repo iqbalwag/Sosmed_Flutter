@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:faker/faker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:front_sosmed/widgets/postingan.dart';
@@ -24,10 +26,18 @@ class _HomePageState extends State<HomePage> {
   bool isScrollingDown = false;
   var faker = Faker();
   bool isLiked = false;
+  late List<String> imageUrls = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // final currentUser = FirebaseAuth.instance.currentUser!;
+  // final gsReference = FirebaseStorage.instance
+  //     .refFromURL("gs://sosmedproject-e95b1.appspot.com/2b-san.jpg");
+  // final ref = FirebaseStorage.instance.ref().child('2b-san.jpg');
+  // no need of the file extension, the name will do fine.
 
   @override
   void initState() {
     super.initState();
+    _loadImages();
     _scrollViewController = ScrollController();
     _scrollViewController.addListener(() {
       if (_scrollViewController.position.userScrollDirection ==
@@ -61,6 +71,27 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       isLiked = !isLiked;
     });
+  }
+
+  Future<void> _loadImages() async {
+    try {
+      // Referensi ke folder di Firebase Storage
+      final ListResult result =
+          await FirebaseStorage.instance.ref('image_post/').listAll();
+      final List<String> urls = [];
+
+      // Mendapatkan URL download untuk setiap file
+      for (var ref in result.items) {
+        final url = await ref.getDownloadURL();
+        urls.add(url);
+      }
+
+      setState(() {
+        imageUrls = urls;
+      });
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   @override
@@ -192,19 +223,46 @@ class _HomePageState extends State<HomePage> {
                     delegate: SliverChildListDelegate(
                       <Widget>[
                         SizedBox(
-                          height: 500,
-                          child: ListView(
-                            children: List.generate(
-                              10,
-                              (int index) {
-                                return FeedWidget(
-                                    index: index,
-                                    isLiked: isLiked,
-                                    toggleLike: toggleLike);
+                            height: 500,
+                            child: StreamBuilder(
+                              stream: _firestore.collection('apa').snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final docs = snapshot.data!.docs;
+                                  print("data gambar $imageUrls");
+                                  print("data snapshot ${docs.toList()}");
+                                  return imageUrls.isEmpty
+                                      ? const Center(
+                                          child: CircularProgressIndicator())
+                                      : ListView.builder(
+                                          itemCount: docs.length,
+                                          itemBuilder: (context, index) {
+                                            final post = docs[index].data();
+                                            print("post $post");
+                                            // final imageUrl = gsReference
+                                            //     .child("users/me/2b-san.png")
+                                            //     .getDownloadURL();
+                                            return FeedWidget(
+                                              index: index,
+                                              isLiked: isLiked,
+                                              toggleLike: toggleLike,
+                                              image: imageUrls[index],
+                                              nama: post['nama'] ?? '',
+                                              deskripsi:
+                                                  post['deskripsi'] ?? '',
+                                            );
+                                          },
+                                        );
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text("Error:${snapshot.error}"),
+                                  );
+                                }
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
                               },
-                            ),
-                          ),
-                        ),
+                            )),
                       ],
                     ),
                   ),

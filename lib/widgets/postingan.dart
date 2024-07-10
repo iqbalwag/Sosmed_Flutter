@@ -1,4 +1,3 @@
-import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,7 +8,17 @@ class FeedWidget extends StatelessWidget {
   final int index;
   final bool isLiked;
   final Function? toggleLike;
-  const FeedWidget({super.key, required this.index, required this.isLiked, required this.toggleLike});
+  final String nama;
+  final String deskripsi;
+  final String image;
+  const FeedWidget(
+      {super.key,
+      required this.index,
+      required this.isLiked,
+      required this.toggleLike,
+      required this.image,
+      required this.nama,
+      required this.deskripsi});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +26,11 @@ class FeedWidget extends StatelessWidget {
       children: <Widget>[
         ListTile(
           leading: CircleAvatar(
-            backgroundImage: NetworkImage("https://avatar.iran.liara.run/public/$index"),
+            backgroundImage:
+                NetworkImage("https://avatar.iran.liara.run/public/$index"),
           ),
           title: Text(
-            faker.person.firstName(),
+            nama,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
@@ -45,49 +55,83 @@ class FeedWidget extends StatelessWidget {
                 ),
                 height: 220,
                 child: Image.network(
-                  "https://picsum.photos/id/${10+index}/300/200",
+                  //"https://picsum.photos/id/${10 + index}/300/200",
+                  image,
                   fit: BoxFit.fill,
                 ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  const SizedBox(
+                  SizedBox(
                     width: 210,
-                    child: Text("Night Watch", 
-                      style: TextStyle(
+                    child: Text(
+                      deskripsi,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),
                     ),
                   ),
                   GestureDetector(
-                    child: isLiked == false ? const FaIcon(FontAwesomeIcons.heart) : const FaIcon(FontAwesomeIcons.solidHeart),
+                    child: isLiked == false
+                        ? const FaIcon(FontAwesomeIcons.heart)
+                        : const FaIcon(FontAwesomeIcons.solidHeart),
                     onTap: () {
                       toggleLike!();
                     },
                   ),
-                  const SizedBox(width: 2,),
-                  const Text('152',style: TextStyle(fontWeight: FontWeight.w200,fontSize: 13),),
+                  const SizedBox(
+                    width: 2,
+                  ),
+                  const Text(
+                    '152',
+                    style: TextStyle(fontWeight: FontWeight.w200, fontSize: 13),
+                  ),
                   const SizedBox(width: 10),
                   GestureDetector(
                     child: const FaIcon(FontAwesomeIcons.comment),
-                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const CommentPage(),));},
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CommentPage(),
+                          ));
+                    },
                   ),
-                  const SizedBox(width: 2,),
-                  const Text('15',style: TextStyle(fontWeight: FontWeight.w200)),
+                  const SizedBox(
+                    width: 2,
+                  ),
+                  const Text('15',
+                      style: TextStyle(fontWeight: FontWeight.w200)),
                   const SizedBox(width: 10),
                 ],
               ),
               const Row(
                 children: [
-                  SizedBox(height: 30, child: Text("alo", textAlign: TextAlign.left,)),
+                  SizedBox(
+                      height: 30,
+                      child: Text(
+                        "alo",
+                        textAlign: TextAlign.left,
+                      )),
                 ],
               ),
             ],
           ),
         )
       ],
-      );
+    );
+  }
+}
+
+class Kucing {
+  late String nama;
+  late int umur;
+  late String corak;
+
+  print(nama) {
+    // TODO: implement print
+    throw UnimplementedError();
   }
 }
