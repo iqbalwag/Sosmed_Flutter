@@ -5,6 +5,7 @@ import 'package:faker/faker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:front_sosmed/pages/upload_page.dart';
 import 'package:front_sosmed/widgets/postingan.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,6 @@ class _HomePageState extends State<HomePage> {
   bool _showAppbar = true;
   bool isScrollingDown = false;
   var faker = Faker();
-  bool isLiked = false;
   late List<String> imageUrls = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // final currentUser = FirebaseAuth.instance.currentUser!;
@@ -65,12 +65,6 @@ class _HomePageState extends State<HomePage> {
     _scrollViewController.dispose();
     _scrollViewController.removeListener(() {});
     super.dispose();
-  }
-
-  void toggleLike() {
-    setState(() {
-      isLiked = !isLiked;
-    });
   }
 
   Future<void> _loadImages() async {
@@ -225,7 +219,9 @@ class _HomePageState extends State<HomePage> {
                         SizedBox(
                             height: 500,
                             child: StreamBuilder(
-                              stream: _firestore.collection('apa').snapshots(),
+                              stream: _firestore
+                                  .collection('User Posts')
+                                  .snapshots(),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   final docs = snapshot.data!.docs;
@@ -238,18 +234,20 @@ class _HomePageState extends State<HomePage> {
                                           itemCount: docs.length,
                                           itemBuilder: (context, index) {
                                             final post = docs[index].data();
+                                            final postId = docs[index].id;
                                             print("post $post");
                                             // final imageUrl = gsReference
                                             //     .child("users/me/2b-san.png")
                                             //     .getDownloadURL();
                                             return FeedWidget(
                                               index: index,
-                                              isLiked: isLiked,
-                                              toggleLike: toggleLike,
-                                              image: imageUrls[index],
-                                              nama: post['nama'] ?? '',
+                                              image: post['Image'],
+                                              nama: post['Title'] ?? '',
                                               deskripsi:
-                                                  post['deskripsi'] ?? '',
+                                                  post['Description'] ?? '',
+                                              postId: postId,
+                                              likes: List<String>.from(
+                                                  post['Likes'] ?? []),
                                             );
                                           },
                                         );
@@ -330,7 +328,13 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.pink,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(100))),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const UploadPage(),
+            ),
+          );
+        },
         child: const Icon(
           Icons.add,
           color: Colors.white,

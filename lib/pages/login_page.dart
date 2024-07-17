@@ -89,10 +89,9 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.network(
-                  (imageUrl),
-                  width: 100,
-                  height: 100,
+                const Icon(
+                  Icons.lock,
+                  size: 100,
                 ),
                 const Gap(40),
                 Text('Selamat datang, di POPO Land',

@@ -1,24 +1,58 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../pages/comment_page.dart';
 
-class FeedWidget extends StatelessWidget {
+class FeedWidget extends StatefulWidget {
   final int index;
-  final bool isLiked;
-  final Function? toggleLike;
   final String nama;
   final String deskripsi;
   final String image;
+  final String postId;
+  final List<String> likes;
   const FeedWidget(
       {super.key,
       required this.index,
-      required this.isLiked,
-      required this.toggleLike,
       required this.image,
       required this.nama,
-      required this.deskripsi});
+      required this.deskripsi,
+      required this.postId,
+      required this.likes});
+
+  @override
+  State<FeedWidget> createState() => _FeedWidgetState();
+}
+
+class _FeedWidgetState extends State<FeedWidget> {
+  final currentUser = FirebaseAuth.instance.currentUser!;
+  bool isLiked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isLiked = widget.likes.contains(currentUser.email);
+  }
+
+  void toggleLike() {
+    setState(() {
+      isLiked = !isLiked;
+    });
+
+    DocumentReference postRef =
+        FirebaseFirestore.instance.collection('apa').doc(widget.postId);
+
+    if (isLiked) {
+      postRef.update({
+        'Likes': FieldValue.arrayUnion([currentUser.email])
+      });
+    } else {
+      postRef.update({
+        'Likes': FieldValue.arrayRemove([currentUser.email])
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +60,11 @@ class FeedWidget extends StatelessWidget {
       children: <Widget>[
         ListTile(
           leading: CircleAvatar(
-            backgroundImage:
-                NetworkImage("https://avatar.iran.liara.run/public/$index"),
+            backgroundImage: NetworkImage(
+                "https://avatar.iran.liara.run/public/${widget.index}"),
           ),
           title: Text(
-            nama,
+            widget.nama,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
@@ -56,7 +90,7 @@ class FeedWidget extends StatelessWidget {
                 height: 220,
                 child: Image.network(
                   //"https://picsum.photos/id/${10 + index}/300/200",
-                  image,
+                  widget.image,
                   fit: BoxFit.fill,
                 ),
               ),
@@ -66,7 +100,7 @@ class FeedWidget extends StatelessWidget {
                   SizedBox(
                     width: 210,
                     child: Text(
-                      deskripsi,
+                      widget.deskripsi,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
@@ -78,15 +112,16 @@ class FeedWidget extends StatelessWidget {
                         ? const FaIcon(FontAwesomeIcons.heart)
                         : const FaIcon(FontAwesomeIcons.solidHeart),
                     onTap: () {
-                      toggleLike!();
+                      toggleLike();
                     },
                   ),
                   const SizedBox(
                     width: 2,
                   ),
-                  const Text(
-                    '152',
-                    style: TextStyle(fontWeight: FontWeight.w200, fontSize: 13),
+                  Text(
+                    widget.likes.length.toString(),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w200, fontSize: 13),
                   ),
                   const SizedBox(width: 10),
                   GestureDetector(
