@@ -26,10 +26,6 @@ class _UploadPageState extends State<UploadPage> {
 
   get data => null;
 
-  void choosedImage() {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -55,7 +51,8 @@ class _UploadPageState extends State<UploadPage> {
                                   size: 50,
                                 ),
                                 const Text(
-                                    "Pilihlah gambar yang sedang ingin kau bagikan ke dunia."),
+                                  "Pilihlah gambar yang sedang ingin kau bagikan ke dunia.",
+                                ),
                                 ElevatedButton(
                                   onPressed: () {
                                     showPictureDialog();
@@ -68,14 +65,14 @@ class _UploadPageState extends State<UploadPage> {
                         : Image.file(File(_image!.path))),
                 const Gap(20),
                 PostTextField(
-                    controller: titleController,
-                    labelText: 'Judul',
-                    autoFocus: true),
+                  controller: titleController,
+                  labelText: 'Judul',
+                ),
                 const Gap(10),
                 PostTextField(
-                    controller: descriptionController,
-                    labelText: 'Deskripsi',
-                    autoFocus: false),
+                  controller: descriptionController,
+                  labelText: 'Deskripsi',
+                ),
                 const Gap(30),
                 ElevatedButton(
                   child: const Text('Posting'),

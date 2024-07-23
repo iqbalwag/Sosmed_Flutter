@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:front_sosmed/pages/login_page.dart';
 import 'package:front_sosmed/pages/register_page.dart';
+import 'package:front_sosmed/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class LoginOrRegister extends StatefulWidget {
   const LoginOrRegister({super.key});
@@ -12,18 +14,33 @@ class LoginOrRegister extends StatefulWidget {
 class _LoginOrRegisterState extends State<LoginOrRegister> {
   bool showLoginPage = true;
 
-  void togglePages(){
-    setState(() {
-      showLoginPage = !showLoginPage;
-    });
-  }
+  // void togglePages(String authProvider) {
+  //   setState(() {
+  //     showLoginPage = !showLoginPage;
+  //     authProvider = '';
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    if (showLoginPage){
-      return LoginPage(onTap: togglePages);
+    ApalahProvider authProvider =
+        Provider.of<ApalahProvider>(context, listen: false);
+    if (showLoginPage) {
+      return LoginPage(onTap: () {
+        setState(() {
+          showLoginPage = !showLoginPage;
+          authProvider.setErrorMessage = '';
+        });
+        //togglePages(authProvider.errorMessage.toString());
+      });
     } else {
-      return RegisterPage(onTap: togglePages);
+      return RegisterPage(onTap: () {
+        setState(() {
+          showLoginPage = !showLoginPage;
+          authProvider.setErrorMessage = '';
+        });
+        // togglePages(authProvider.errorMessage.toString());
+      });
     }
   }
 }

@@ -3,18 +3,15 @@ import 'package:flutter/material.dart';
 class PostTextField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
-  final bool autoFocus;
   const PostTextField({
     super.key,
     required this.controller,
     required this.labelText,
-    required this.autoFocus,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      autofocus: autoFocus,
       controller: controller,
       keyboardType: TextInputType.text,
       maxLines: null,

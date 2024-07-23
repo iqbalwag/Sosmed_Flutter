@@ -10,12 +10,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ApalahProvider()),
-        // Tambahkan provider lain jika diperlukan
-      ],
-      child: const MyApp()));
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => ApalahProvider()),
+    // Tambahkan provider lain jika diperlukan
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -24,8 +22,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final newTextTheme = Theme.of(context).textTheme.apply(
-      fontFamily: 'MPLUSRounded1c',
-    );
+          fontFamily: 'MPLUSRounded1c',
+        );
     return MaterialApp(
       theme: ThemeData(textTheme: newTextTheme),
       home: const AuthPage(),

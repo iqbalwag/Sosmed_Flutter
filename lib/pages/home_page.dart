@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _loadImages();
+
     _scrollViewController = ScrollController();
     _scrollViewController.addListener(() {
       if (_scrollViewController.position.userScrollDirection ==
@@ -58,6 +58,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+    _loadImages();
   }
 
   @override
@@ -236,9 +237,6 @@ class _HomePageState extends State<HomePage> {
                                             final post = docs[index].data();
                                             final postId = docs[index].id;
                                             print("post $post");
-                                            // final imageUrl = gsReference
-                                            //     .child("users/me/2b-san.png")
-                                            //     .getDownloadURL();
                                             return FeedWidget(
                                               index: index,
                                               image: post['Image'],

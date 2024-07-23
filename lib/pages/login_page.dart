@@ -25,6 +25,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   late String imageUrl;
+  String error = '';
   final emailTextController = TextEditingController();
   final passwordTextController = TextEditingController();
 
@@ -33,6 +34,12 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _downloadImage();
   }
+
+  // errAuth() {
+  //   setState(() {
+  //     err = !err;
+  //   });
+  // }
 
   Future<void> _downloadImage() async {
     try {
@@ -80,6 +87,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    ApalahProvider authProvider =
+        Provider.of<ApalahProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: SafeArea(
@@ -98,14 +107,22 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(color: Colors.grey[700])),
                 const Gap(30),
                 AuthTextField(
-                    controller: emailTextController,
-                    hintText: 'Email',
-                    obscureText: false),
+                  controller: emailTextController,
+                  hintText: 'Email',
+                  obscureText: false,
+                  color: authProvider.errorMessage.isEmpty
+                      ? Colors.white
+                      : Colors.red,
+                ),
                 const Gap(10),
                 AuthTextField(
-                    controller: passwordTextController,
-                    hintText: 'Password',
-                    obscureText: true),
+                  controller: passwordTextController,
+                  hintText: 'Password',
+                  obscureText: true,
+                  color: authProvider.errorMessage.isEmpty
+                      ? Colors.white
+                      : Colors.red,
+                ),
                 const Gap(10),
                 AuthButton(
                     onTap: () async {
@@ -115,36 +132,69 @@ class _LoginPageState extends State<LoginPage> {
                           child: CircularProgressIndicator(),
                         ),
                       );
-                      ApalahProvider authProvider =
-                          Provider.of<ApalahProvider>(context, listen: false);
+
+                      // ApalahProvider authError = ApalahProvider();
+                      // setState(() {
+                      //   err = authError.isError;
+                      // });
+                      // print('auth error ${authError.isError}');
+
                       await authProvider.signIn(emailTextController.text,
                           passwordTextController.text);
+                      setState(() {
+                        authProvider.errorMessage;
+                      });
+                      print('error is ${authProvider.errorMessage}');
                       if (context.mounted) Navigator.pop(context);
                     },
                     text: 'Sign In'),
                 const Gap(10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Belum mempunyai akun ?',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    const Gap(7),
-                    GestureDetector(
-                        onTap: widget.onTap,
-                        child: const Text(
-                          'Daftar Sekarang!',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.blue),
-                        )),
-                  ],
-                )
+                authProvider.errorMessage.isNotEmpty
+                    ? Column(
+                        children: [
+                          Text(
+                            authProvider.errorMessage,
+                            style: TextStyle(color: Colors.red[900]),
+                          ),
+                          const Gap(10),
+                          RegisterText(widget: widget)
+                        ],
+                      )
+                    : RegisterText(widget: widget)
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class RegisterText extends StatelessWidget {
+  const RegisterText({
+    super.key,
+    required this.widget,
+  });
+
+  final LoginPage widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Belum mempunyai akun ?',
+          style: TextStyle(color: Colors.grey[700]),
+        ),
+        const Gap(7),
+        GestureDetector(
+            onTap: widget.onTap,
+            child: const Text(
+              'Daftar Sekarang!',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+            )),
+      ],
     );
   }
 }

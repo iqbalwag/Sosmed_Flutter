@@ -41,7 +41,7 @@ class _FeedWidgetState extends State<FeedWidget> {
     });
 
     DocumentReference postRef =
-        FirebaseFirestore.instance.collection('apa').doc(widget.postId);
+        FirebaseFirestore.instance.collection('User Posts').doc(widget.postId);
 
     if (isLiked) {
       postRef.update({
@@ -157,16 +157,5 @@ class _FeedWidgetState extends State<FeedWidget> {
         )
       ],
     );
-  }
-}
-
-class Kucing {
-  late String nama;
-  late int umur;
-  late String corak;
-
-  print(nama) {
-    // TODO: implement print
-    throw UnimplementedError();
   }
 }
