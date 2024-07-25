@@ -130,7 +130,13 @@ class _FeedWidgetState extends State<FeedWidget> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const CommentPage(),
+                            builder: (context) => CommentPage(
+                              postId: widget.postId,
+                              deskripsi: widget.deskripsi,
+                              image: widget.image,
+                              nama: widget.nama,
+                              likes: widget.likes,
+                            ),
                           ));
                     },
                   ),

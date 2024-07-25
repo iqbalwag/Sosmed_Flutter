@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:faker/faker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,22 +11,55 @@ const Color bottonNavBgColor = Color.fromARGB(255, 46, 51, 65);
 
 class CommentPage extends StatefulWidget {
   // final Function()? onTap;
-  const CommentPage({super.key});
+  final String nama;
+  final String deskripsi;
+  final String image;
+  final String postId;
+  final List<String> likes;
+  const CommentPage(
+      {super.key,
+      required this.postId,
+      required this.nama,
+      required this.deskripsi,
+      required this.image,
+      required this.likes});
 
   @override
   State<CommentPage> createState() => _CommentPageState();
 }
 
 class _CommentPageState extends State<CommentPage> {
+  final currentUser = FirebaseAuth.instance.currentUser!;
   bool isLiked = false;
 // bool _emojiShowing = false;
 
 // final key = GlobalKey<EmojiPickerState>();
 
+  @override
+  void initState() {
+    super.initState();
+    isLiked = widget.likes.contains(currentUser.email);
+  }
+
   void toggleLike() {
     setState(() {
       isLiked = !isLiked;
     });
+
+    DocumentReference postRef =
+        FirebaseFirestore.instance.collection('User Posts').doc(widget.postId);
+
+    if (isLiked) {
+      postRef.update({
+        'Likes': FieldValue.arrayUnion([currentUser.email]),
+      });
+    } else {
+      postRef.update({
+        'Likes': FieldValue.arrayRemove([currentUser.email])
+      });
+    }
+
+    postRef.get();
   }
 
   @override
@@ -69,7 +104,7 @@ class _CommentPageState extends State<CommentPage> {
               bottomRight: Radius.circular(20.0),
             ),
             child: Image.network(
-              "https://picsum.photos/id/1/300/200",
+              widget.image,
               fit: BoxFit.fill,
             ),
           ),
@@ -84,11 +119,11 @@ class _CommentPageState extends State<CommentPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                const SizedBox(
+                SizedBox(
                   width: 210,
                   child: Text(
-                    "Night Watch",
-                    style: TextStyle(
+                    widget.nama,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                     ),
@@ -105,9 +140,9 @@ class _CommentPageState extends State<CommentPage> {
                 const SizedBox(
                   width: 2,
                 ),
-                const Text(
-                  '152',
-                  style: TextStyle(fontWeight: FontWeight.w400),
+                Text(
+                  widget.likes.length.toString(),
+                  style: const TextStyle(fontWeight: FontWeight.w400),
                 ),
                 const SizedBox(width: 10),
                 GestureDetector(
@@ -121,16 +156,16 @@ class _CommentPageState extends State<CommentPage> {
                 const SizedBox(width: 10),
               ],
             ),
-            const Row(
+            Row(
               children: [
                 SizedBox(
                     height: 23,
                     child: FittedBox(
                         fit: BoxFit.fitHeight,
                         child: Text(
-                          "alo",
+                          widget.deskripsi,
                           textAlign: TextAlign.left,
-                          style: TextStyle(fontWeight: FontWeight.normal),
+                          style: const TextStyle(fontWeight: FontWeight.normal),
                         ))),
               ],
             ),
