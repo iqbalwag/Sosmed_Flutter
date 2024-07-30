@@ -25,7 +25,9 @@ class MyApp extends StatelessWidget {
           fontFamily: 'MPLUSRounded1c',
         );
     return MaterialApp(
-      theme: ThemeData(textTheme: newTextTheme),
+      theme: ThemeData(
+          textTheme: newTextTheme,
+          scaffoldBackgroundColor: const Color.fromARGB(237, 255, 255, 255)),
       home: const AuthPage(),
       debugShowCheckedModeBanner: false,
     );

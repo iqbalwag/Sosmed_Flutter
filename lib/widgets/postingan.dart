@@ -27,6 +27,7 @@ class FeedWidget extends StatefulWidget {
 
 class _FeedWidgetState extends State<FeedWidget> {
   final currentUser = FirebaseAuth.instance.currentUser!;
+  final _firestore = FirebaseFirestore.instance;
   bool isLiked = false;
 
   @override
@@ -56,112 +57,122 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(
-                "https://avatar.iran.liara.run/public/${widget.index}"),
-          ),
-          title: Text(
-            widget.nama,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      offset: const Offset(0, 3),
-                      blurRadius: 10,
+    return StreamBuilder(
+        stream: _firestore
+            .collection('User Posts')
+            .doc(widget.postId)
+            .collection('Comments')
+            .snapshots(),
+        builder: (context, snapshot) {
+          final comments = snapshot.data!.docs;
+          return Column(
+            children: <Widget>[
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      "https://avatar.iran.liara.run/public/${widget.index}"),
+                ),
+                title: Text(
+                  widget.nama,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            offset: const Offset(0, 3),
+                            blurRadius: 10,
+                          ),
+                        ],
+                      ),
+                      height: 220,
+                      child: Image.network(
+                        //"https://picsum.photos/id/${10 + index}/300/200",
+                        widget.image,
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(
+                          width: 210,
+                          child: Text(
+                            widget.deskripsi,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          child: isLiked == false
+                              ? const FaIcon(FontAwesomeIcons.heart)
+                              : const FaIcon(FontAwesomeIcons.solidHeart),
+                          onTap: () {
+                            toggleLike();
+                          },
+                        ),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        Text(
+                          widget.likes.length.toString(),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w200, fontSize: 13),
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          child: const FaIcon(FontAwesomeIcons.comment),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CommentPage(
+                                    postId: widget.postId,
+                                    deskripsi: widget.deskripsi,
+                                    image: widget.image,
+                                    nama: widget.nama,
+                                    likes: widget.likes,
+                                  ),
+                                ));
+                          },
+                        ),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        Text(comments.length.toString(),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w200)),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    const Row(
+                      children: [
+                        SizedBox(
+                            height: 30,
+                            child: Text(
+                              "alo",
+                              textAlign: TextAlign.left,
+                            )),
+                      ],
                     ),
                   ],
                 ),
-                height: 220,
-                child: Image.network(
-                  //"https://picsum.photos/id/${10 + index}/300/200",
-                  widget.image,
-                  fit: BoxFit.fill,
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  SizedBox(
-                    width: 210,
-                    child: Text(
-                      widget.deskripsi,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    child: isLiked == false
-                        ? const FaIcon(FontAwesomeIcons.heart)
-                        : const FaIcon(FontAwesomeIcons.solidHeart),
-                    onTap: () {
-                      toggleLike();
-                    },
-                  ),
-                  const SizedBox(
-                    width: 2,
-                  ),
-                  Text(
-                    widget.likes.length.toString(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w200, fontSize: 13),
-                  ),
-                  const SizedBox(width: 10),
-                  GestureDetector(
-                    child: const FaIcon(FontAwesomeIcons.comment),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CommentPage(
-                              postId: widget.postId,
-                              deskripsi: widget.deskripsi,
-                              image: widget.image,
-                              nama: widget.nama,
-                              likes: widget.likes,
-                            ),
-                          ));
-                    },
-                  ),
-                  const SizedBox(
-                    width: 2,
-                  ),
-                  const Text('15',
-                      style: TextStyle(fontWeight: FontWeight.w200)),
-                  const SizedBox(width: 10),
-                ],
-              ),
-              const Row(
-                children: [
-                  SizedBox(
-                      height: 30,
-                      child: Text(
-                        "alo",
-                        textAlign: TextAlign.left,
-                      )),
-                ],
-              ),
+              )
             ],
-          ),
-        )
-      ],
-    );
+          );
+        });
   }
 }

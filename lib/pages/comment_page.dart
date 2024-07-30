@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:faker/faker.dart';
+// import 'package:faker/faker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +30,11 @@ class CommentPage extends StatefulWidget {
 
 class _CommentPageState extends State<CommentPage> {
   final currentUser = FirebaseAuth.instance.currentUser!;
+  final _firestore = FirebaseFirestore.instance;
+  TextEditingController textController = TextEditingController();
   bool isLiked = false;
+  bool isPressed = false;
+  List coba = [];
 // bool _emojiShowing = false;
 
 // final key = GlobalKey<EmojiPickerState>();
@@ -110,112 +114,140 @@ class _CommentPageState extends State<CommentPage> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  width: 210,
-                  child: Text(
-                    widget.nama,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  child: isLiked == false
-                      ? const FaIcon(FontAwesomeIcons.heart)
-                      : const FaIcon(FontAwesomeIcons.solidHeart),
-                  onTap: () {
-                    toggleLike();
-                  },
-                ),
-                const SizedBox(
-                  width: 2,
-                ),
-                Text(
-                  widget.likes.length.toString(),
-                  style: const TextStyle(fontWeight: FontWeight.w400),
-                ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  child: const FaIcon(FontAwesomeIcons.comment),
-                  onTap: () {},
-                ),
-                const SizedBox(
-                  width: 2,
-                ),
-                const Text('15', style: TextStyle(fontWeight: FontWeight.w400)),
-                const SizedBox(width: 10),
-              ],
-            ),
-            Row(
-              children: [
-                SizedBox(
-                    height: 23,
-                    child: FittedBox(
-                        fit: BoxFit.fitHeight,
-                        child: Text(
-                          widget.deskripsi,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(fontWeight: FontWeight.normal),
-                        ))),
-              ],
-            ),
-            SizedBox(
-              height: 220,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                itemCount: 4,
-                itemBuilder: (context, index) {
-                  return Row(
-                    children: [
-                      CircleAvatar(
-                        maxRadius: 27,
-                        backgroundImage: NetworkImage(
-                            "https://avatar.iran.liara.run/public/$index"),
-                      ),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(
-                                    color: const Color.fromARGB(255, 43, 43, 43)
-                                        .withOpacity(0.3))),
-                          ),
-                          child: ListTile(
-                            contentPadding:
-                                const EdgeInsets.only(left: 4, right: 16),
-                            title: Text(
-                              faker.person.firstName(),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+      body: StreamBuilder(
+          stream: _firestore
+              .collection('User Posts')
+              .doc(widget.postId)
+              .collection('Comments')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              //final comments = _firestore.collection('User Posts').doc(widget.postId).collection('Comments');
+              final docs = snapshot.data!.docs;
+
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(
+                          width: 210,
+                          child: Text(
+                            widget.nama,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
                             ),
-                            subtitle: Text(faker.lorem.words(4).join(" ")),
-                            trailing: IconButton(
-                                onPressed: () {},
-                                icon: const FaIcon(
-                                  CupertinoIcons.heart,
-                                  color: Colors.pink,
-                                )),
                           ),
                         ),
+                        GestureDetector(
+                          child: isLiked == false
+                              ? const FaIcon(FontAwesomeIcons.heart)
+                              : const FaIcon(FontAwesomeIcons.solidHeart),
+                          onTap: () {
+                            toggleLike();
+                          },
+                        ),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        Text(
+                          widget.likes.length.toString(),
+                          style: const TextStyle(fontWeight: FontWeight.w400),
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          child: const FaIcon(FontAwesomeIcons.comment),
+                          onTap: () {},
+                        ),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        Text(docs.length.toString(),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w400)),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(
+                            height: 23,
+                            child: FittedBox(
+                                fit: BoxFit.fitHeight,
+                                child: Text(
+                                  widget.deskripsi,
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.normal),
+                                ))),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 220,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        itemCount: docs.length,
+                        itemBuilder: (context, index) {
+                          final comments = docs[index].data();
+                          return Row(
+                            children: [
+                              CircleAvatar(
+                                maxRadius: 27,
+                                backgroundImage: NetworkImage(
+                                    "https://avatar.iran.liara.run/public/$index"),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: const Color.fromARGB(
+                                                    255, 43, 43, 43)
+                                                .withOpacity(0.3))),
+                                  ),
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.only(
+                                        left: 4, right: 16),
+                                    title: Text(
+                                      comments['User'],
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    subtitle: Text(
+                                      comments['Comment'],
+                                    ),
+                                    trailing: IconButton(
+                                        onPressed: () {},
+                                        icon: const FaIcon(
+                                          CupertinoIcons.heart,
+                                          color: Colors.pink,
+                                        )),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+                    ),
+                  ],
+                ),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error : ${snapshot.error}'),
+              );
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 56, //In Future remove the height
@@ -232,29 +264,63 @@ class _CommentPageState extends State<CommentPage> {
               ),
             ],
           ),
-          child: const Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: AssetImage(avatar),
-              ),
-              Expanded(
-                child: TextField(
-                  maxLines: 1,
-                  textAlignVertical: TextAlignVertical.center,
-                  decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                    hintStyle: TextStyle(color: Colors.white),
-                    border: InputBorder.none,
-                    hintText: 'Add Comment...',
+          child: Center(
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  backgroundImage: AssetImage(avatar),
+                ),
+                Expanded(
+                  child: TextField(
+                    maxLines: 1,
+                    textAlignVertical: TextAlignVertical.center,
+                    keyboardType: TextInputType.multiline,
+                    controller: textController,
+                    // onTap: () {
+                    //   setState(() {
+                    //     textController.text;
+                    //   });
+                    // },
+                    onChanged: (value) {
+                      setState(() {
+                        textController.text;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      hintStyle: TextStyle(color: Colors.white),
+                      border: InputBorder.none,
+                      hintText: 'Add Comment...',
+                    ),
                   ),
                 ),
-              ),
-              Icon(
-                Icons.emoji_emotions,
-                color: Colors.white,
-              ),
-            ],
+                textController.text.isEmpty
+                    ? const Icon(
+                        Icons.emoji_emotions,
+                        color: Colors.white,
+                      )
+                    : IconButton(
+                        icon: const Icon(
+                          Icons.send_rounded,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          _firestore
+                              .collection("User Posts")
+                              .doc(widget.postId)
+                              .collection('Comments')
+                              .add({
+                            "User": currentUser.email,
+                            "Comment": textController.text,
+                            "TimeStamp": Timestamp.now(),
+                          });
+
+                          textController.clear();
+                        },
+                      )
+              ],
+            ),
           ),
         ),
       ),

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:faker/faker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -28,6 +29,8 @@ class _HomePageState extends State<HomePage> {
   var faker = Faker();
   late List<String> imageUrls = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final currentUser = FirebaseAuth.instance.currentUser;
+
   // final currentUser = FirebaseAuth.instance.currentUser!;
   // final gsReference = FirebaseStorage.instance
   //     .refFromURL("gs://sosmedproject-e95b1.appspot.com/2b-san.jpg");
@@ -246,6 +249,7 @@ class _HomePageState extends State<HomePage> {
                                               postId: postId,
                                               likes: List<String>.from(
                                                   post['Likes'] ?? []),
+                                              //comments: docs.length,
                                             );
                                           },
                                         );
@@ -304,6 +308,14 @@ class _HomePageState extends State<HomePage> {
                 //   });
                 // },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                  PopupMenuItem(
+                    onTap: () async {
+                      ApalahProvider authProvider =
+                          Provider.of<ApalahProvider>(context, listen: false);
+                      authProvider.signOut();
+                    },
+                    child: Text(currentUser!.email ?? ''),
+                  ),
                   PopupMenuItem(
                     onTap: () async {
                       ApalahProvider authProvider =
