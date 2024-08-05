@@ -16,7 +16,6 @@ class UploadPage extends StatefulWidget {
 
 class _UploadPageState extends State<UploadPage> {
   TextEditingController titleController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
   final firestore = FirebaseFirestore.instance;
   final ap = FirebaseAuth.instance.currentUser;
 
@@ -39,46 +38,73 @@ class _UploadPageState extends State<UploadPage> {
             padding: const EdgeInsets.all(18.0),
             child: Column(
               children: [
-                SizedBox(
-                    height: 350,
+                Center(
+                  child: Container(
+                    clipBehavior: Clip.hardEdge,
+                    height: 200,
                     width: 350,
+                    decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10.0),
+                        // boxShadow: const [BoxShadow(offset: Offset(1, 1))],
+                        border:
+                            Border.all(color: Colors.grey.shade300, width: 2)),
                     child: _image == null
                         ? Center(
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.image,
-                                  size: 50,
+                            child: Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.image,
+                                      size: 50,
+                                    ),
+                                    const Text(
+                                      "Pilihlah gambar yang sedang ingin kau bagikan ke dunia.",
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        showPictureDialog();
+                                      },
+                                      child: const Text("Pilih Gambar"),
+                                    ),
+                                  ],
                                 ),
-                                const Text(
-                                  "Pilihlah gambar yang sedang ingin kau bagikan ke dunia.",
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    showPictureDialog();
-                                  },
-                                  child: const Text("Pilih Gambar"),
-                                ),
-                              ],
+                              ),
                             ),
                           )
-                        : Image.file(File(_image!.path))),
+                        : Stack(
+                            children: [
+                              Image.file(
+                                File(_image!.path),
+                              ),
+                              Positioned(
+                                  top: -5,
+                                  right: -5,
+                                  child: IconButton(
+                                      onPressed: () async {
+                                        if (await _image!.exists()) {
+                                          await _image!.delete();
+                                          clearImage();
+                                        }
+                                      },
+                                      icon: const Icon(Icons.cancel_rounded)))
+                            ],
+                          ),
+                  ),
+                ),
                 const Gap(20),
                 PostTextField(
                   controller: titleController,
                   labelText: 'Judul',
-                ),
-                const Gap(10),
-                PostTextField(
-                  controller: descriptionController,
-                  labelText: 'Deskripsi',
                 ),
                 const Gap(30),
                 ElevatedButton(
                   child: const Text('Posting'),
                   onPressed: () async {
                     if (titleController.text.isNotEmpty &&
-                        descriptionController.text.isNotEmpty &&
                         _image.toString().isNotEmpty) {
                       showDialog(
                         context: context,
@@ -90,8 +116,6 @@ class _UploadPageState extends State<UploadPage> {
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  titleController.clear();
-                                  descriptionController.clear();
                                   Navigator.of(context).pop();
                                 },
                                 child: const Text('Tidak'),
@@ -112,14 +136,16 @@ class _UploadPageState extends State<UploadPage> {
 
                                     firestore.collection("User Posts").add({
                                       "Title": titleController.text,
-                                      "Description": descriptionController.text,
                                       "TimeStamp": Timestamp.now(),
                                       "Likes": [],
                                       // Add image reference to document
                                       "Image": downloadUrl.toString()
                                     });
 
-                                    Navigator.of(context).pop();
+                                    if (context.mounted) {
+                                      Navigator.popAndPushNamed(
+                                          context, '/home');
+                                    }
                                   },
                                   child: const Text('Ya'))
                             ],
@@ -174,6 +200,7 @@ class _UploadPageState extends State<UploadPage> {
       setState(() {
         _image = File(pickedFile.path);
       });
+      print(_image);
     }
   }
 
@@ -189,5 +216,11 @@ class _UploadPageState extends State<UploadPage> {
         _image = File(pickedFile.path);
       });
     }
+  }
+
+  void clearImage() {
+    setState(() {
+      _image = null;
+    });
   }
 }
