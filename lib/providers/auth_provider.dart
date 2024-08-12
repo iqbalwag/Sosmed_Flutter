@@ -81,5 +81,6 @@ class ApalahProvider extends ChangeNotifier {
 
   void signOut() {
     FirebaseAuth.instance.signOut();
+    notifyListeners();
   }
 }

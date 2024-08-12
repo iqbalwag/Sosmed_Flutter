@@ -17,7 +17,7 @@ class UploadPage extends StatefulWidget {
 class _UploadPageState extends State<UploadPage> {
   TextEditingController titleController = TextEditingController();
   final firestore = FirebaseFirestore.instance;
-  final ap = FirebaseAuth.instance.currentUser;
+  final User? currentUser = FirebaseAuth.instance.currentUser;
 
   File? _image;
 
@@ -135,6 +135,7 @@ class _UploadPageState extends State<UploadPage> {
                                         .getDownloadURL();
 
                                     firestore.collection("User Posts").add({
+                                      "User Email": currentUser!.email,
                                       "Title": titleController.text,
                                       "TimeStamp": Timestamp.now(),
                                       "Likes": [],
@@ -143,8 +144,14 @@ class _UploadPageState extends State<UploadPage> {
                                     });
 
                                     if (context.mounted) {
-                                      Navigator.popAndPushNamed(
-                                          context, '/home');
+                                      Navigator.popUntil(
+                                          context, (route) => route.isFirst);
+                                      // Navigator.pushAndRemoveUntil(
+                                      //     context,
+                                      //     MaterialPageRoute<void>(
+                                      //         builder: (BuildContext context) =>
+                                      //             const HomePage()),
+                                      //     (route) => false);
                                     }
                                   },
                                   child: const Text('Ya'))

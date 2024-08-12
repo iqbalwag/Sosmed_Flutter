@@ -11,16 +11,16 @@ const Color bottonNavBgColor = Color.fromARGB(255, 46, 51, 65);
 
 class CommentPage extends StatefulWidget {
   // final Function()? onTap;
-  final String nama;
-  final String deskripsi;
+  final String title;
+  final String userEmail;
   final String image;
   final String postId;
   final List<String> likes;
   const CommentPage(
       {super.key,
       required this.postId,
-      required this.nama,
-      required this.deskripsi,
+      required this.title,
+      required this.userEmail,
       required this.image,
       required this.likes});
 
@@ -138,7 +138,7 @@ class _CommentPageState extends State<CommentPage> {
                         SizedBox(
                           width: 210,
                           child: Text(
-                            widget.nama,
+                            widget.title,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
@@ -181,7 +181,7 @@ class _CommentPageState extends State<CommentPage> {
                             child: FittedBox(
                                 fit: BoxFit.fitHeight,
                                 child: Text(
-                                  widget.deskripsi,
+                                  widget.userEmail,
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(
                                       fontWeight: FontWeight.normal),

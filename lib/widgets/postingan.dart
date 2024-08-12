@@ -7,8 +7,8 @@ import '../pages/comment_page.dart';
 
 class FeedWidget extends StatefulWidget {
   final int index;
-  final String nama;
-  final String deskripsi;
+  final String title;
+  final String userEmail;
   final String image;
   final String postId;
   final List<String> likes;
@@ -16,8 +16,8 @@ class FeedWidget extends StatefulWidget {
       {super.key,
       required this.index,
       required this.image,
-      required this.nama,
-      required this.deskripsi,
+      required this.title,
+      required this.userEmail,
       required this.postId,
       required this.likes});
 
@@ -68,18 +68,6 @@ class _FeedWidgetState extends State<FeedWidget> {
             final comments = snapshot.data!.docs;
             return Column(
               children: <Widget>[
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                        "https://avatar.iran.liara.run/public/${widget.index}"),
-                  ),
-                  title: Text(
-                    widget.nama,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Column(
@@ -112,7 +100,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                           SizedBox(
                             width: 210,
                             child: Text(
-                              widget.deskripsi,
+                              widget.title,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
@@ -144,9 +132,9 @@ class _FeedWidgetState extends State<FeedWidget> {
                                   MaterialPageRoute(
                                     builder: (context) => CommentPage(
                                       postId: widget.postId,
-                                      deskripsi: widget.deskripsi,
+                                      userEmail: widget.userEmail,
                                       image: widget.image,
-                                      nama: widget.nama,
+                                      title: widget.title,
                                       likes: widget.likes,
                                     ),
                                   ));
@@ -161,12 +149,12 @@ class _FeedWidgetState extends State<FeedWidget> {
                           const SizedBox(width: 10),
                         ],
                       ),
-                      const Row(
+                      Row(
                         children: [
                           SizedBox(
                               height: 30,
                               child: Text(
-                                "alo",
+                                widget.userEmail,
                                 textAlign: TextAlign.left,
                               )),
                         ],

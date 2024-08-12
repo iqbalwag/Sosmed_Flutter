@@ -44,7 +44,7 @@ dependencies:
   provider: ^6.1.2
   cloud_firestore: ^5.0.2
   firebase_storage: ^12.1.0
-  flutter_inner_shadow: ^0.0.1
+  percent_indicator: ^4.2.3
 
 dev_dependencies:
   flutter_test:

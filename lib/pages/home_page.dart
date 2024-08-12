@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:front_sosmed/pages/upload_page.dart';
 import 'package:front_sosmed/widgets/postingan.dart';
+import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
+import 'stories_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,6 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<XFile> imageFileList = [];
   File? imageFile;
   final imagePicker = ImagePicker();
   ScrollController _scrollViewController = ScrollController();
@@ -135,7 +138,11 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        showPictureDialog();
+                                        if (imageFileList.isNotEmpty) {
+                                          showStories();
+                                        } else {
+                                          showPictureDialog();
+                                        }
                                       },
                                       child: Stack(children: [
                                         // CircleAvatar(
@@ -154,21 +161,26 @@ class _HomePageState extends State<HomePage> {
                                                     backgroundImage:
                                                         AssetImage(avatar),
                                                   )),
-                                        Positioned(
-                                          bottom: 5,
-                                          right: 5,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(5),
-                                            decoration: const BoxDecoration(
-                                                color: Colors.blue,
-                                                shape: BoxShape.circle),
-                                            child: const Text(
-                                              "+",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        )
+                                        imageFile != null
+                                            ? const Text('data')
+                                            : Positioned(
+                                                bottom: 5,
+                                                right: 5,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(5),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                          color: Colors.blue,
+                                                          shape:
+                                                              BoxShape.circle),
+                                                  child: const Text(
+                                                    "+",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              )
                                       ]),
                                     ),
                                     const Text(
@@ -220,6 +232,7 @@ class _HomePageState extends State<HomePage> {
                   SliverList(
                     delegate: SliverChildListDelegate(
                       <Widget>[
+                        const Gap(10),
                         SizedBox(
                             height: 500,
                             child: StreamBuilder(
@@ -243,9 +256,9 @@ class _HomePageState extends State<HomePage> {
                                             return FeedWidget(
                                               index: index,
                                               image: post['Image'],
-                                              nama: post['Title'] ?? '',
-                                              deskripsi:
-                                                  post['Description'] ?? '',
+                                              title: post['Title'] ?? '',
+                                              userEmail:
+                                                  post['User Email'] ?? '',
                                               postId: postId,
                                               likes: List<String>.from(
                                                   post['Likes'] ?? []),
@@ -309,11 +322,6 @@ class _HomePageState extends State<HomePage> {
                 // },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry>[
                   PopupMenuItem(
-                    onTap: () async {
-                      ApalahProvider authProvider =
-                          Provider.of<ApalahProvider>(context, listen: false);
-                      authProvider.signOut();
-                    },
                     child: Text(currentUser!.email ?? ''),
                   ),
                   PopupMenuItem(
@@ -353,6 +361,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void showStories() {
+    //Load to stories page
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => StoriesPage(
+                  stories: imageFileList,
+                )));
+  }
+
   Future<void> showPictureDialog() async {
     await showDialog<void>(
         context: context,
@@ -381,14 +399,13 @@ class _HomePageState extends State<HomePage> {
 
   // get from gallery
   getFromGallery() async {
-    final pickedFile = await imagePicker.pickImage(
-      source: ImageSource.gallery,
+    final pickedFile = await imagePicker.pickMultiImage(
       maxWidth: 1800,
       maxHeight: 1800,
     );
-    if (pickedFile != null) {
+    if (pickedFile.isNotEmpty) {
       setState(() {
-        imageFile = File(pickedFile.path);
+        imageFileList.addAll(pickedFile);
       });
     }
   }
